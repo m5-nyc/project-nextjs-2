@@ -39,7 +39,7 @@ export default class AuthService {
 
   getToken() {
       // retrieves the user token from localStorage
-      return localStorage.getItems('id_token')
+      return localStorage.getItem('id_token')
   }
 
   logout() {

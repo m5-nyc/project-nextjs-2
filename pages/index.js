@@ -1,15 +1,42 @@
 import React from 'react'
 import posts from '../data/posts'
 import Link from 'next/link'
+import AuthService from '../utils/AuthService'
 
 export default class extends React.Component {
     static getInitialProps() {
         return { posts: posts }
     }
+
+    constructor(props) {
+        super(props)
+        this.state = { logginIn: false }
+    }
+
+    componentDidMount() {
+        this.auth = new AuthService('c0dPqZTahGrJ4R4sbrZp4YvaY8jTsSZ5', 'maverick5.auth0.com' );
+        this.setState({ loggedIn: this.auth.loggedIn() })
+        // instance of lock
+        this.lock = this.auth.getLock();
+        this.lock.on('authentication', () => {
+            this.setState({ loggedIn: this.auth.loggedIn() })
+        });
+    }
+
+    login() {
+        this.auth.login()
+    }
+
     render() {
+
+        const loginButton = this.state.loggedIn ? <div>Hello</div> : <button onClick={this.login.bind(this)}>login</button>;
+
         return (
             <div>
                 <div className='header'>
+                    <script src="https://cdn.auth0.com/js/lock/10.5/lock.min.js"></script>
+                    { loginButton}
+
                     <h3>NEXTHRONE - THE REVELATION OF GAME OF THRONES' CHARACTERS</h3>
                 </div>
                 <table className='table'>
@@ -25,7 +52,9 @@ export default class extends React.Component {
                             <tr key={i}>
                                 <td className='td'>{ post.codeName }</td>
                                 <td className='td'>
-                                    <Link href={`/account?id=${post.id}`}>{ post.realName }</Link>
+                                    { this.state.loggedIn
+                                        ? <Link href={`/account?id=${post.id}`}>{ post.realName }</Link>
+                                        : <div> 'you need to login' </div> }
                                 </td>
                             </tr>
                             ))
@@ -82,5 +111,6 @@ export default class extends React.Component {
             </div>
         )
     }
+
 }
 
